@@ -4,7 +4,7 @@ export interface Student {
     lastName: string;
 }
 
-export interface Courses {
+export interface Course {
     id?: number;
     title: string;
     code: string;
@@ -15,5 +15,5 @@ export interface Grade {
     id?: number;
     score: number;
     student: Student;
-    course: Courses;
+    course: Course;
 }
