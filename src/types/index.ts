@@ -17,3 +17,18 @@ export interface Grade {
     student: Student;
     course: Course;
 }
+// Type pour créer/modifier une note (ce qu'attend l'API)
+export interface CreateGradeDto {
+  score: number;
+  studentId: number;
+  courseId: number;
+}
+
+// Type pour afficher une note (ce que retourne l'API)
+export interface Grade {
+  id?: number;
+  score: number;
+  student: Student;
+  course: Course;
+}
+
