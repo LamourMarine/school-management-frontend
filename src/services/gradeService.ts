@@ -1,5 +1,5 @@
 import api from "./api";
-import type { CreateGradeDto, Grade } from "../types";
+import type { CreateGradeDto, Grade, Student } from "../types";
 import type { AxiosResponse } from "axios";
 
 const gradeService = {
@@ -22,7 +22,7 @@ const gradeService = {
     //Supprimer une note
     deleteGrade: (id: number): Promise<AxiosResponse<void>> => {
         return api.delete<void>(`/grades/${id}`);
-    },
+    }
 };
 
 export default gradeService;
