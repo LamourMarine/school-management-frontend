@@ -1,5 +1,6 @@
 import type { Student } from "../../types/index";
-import { Dialog, DialogTitle, DialogContent } from '@mui/material';
+import StudentReport from "./StudentReport";
+import { Dialog, DialogTitle, DialogContent, } from '@mui/material';
 import StudentForm from './StudentForm';
 import React, { useState, useEffect } from 'react';
 import {
@@ -15,7 +16,7 @@ import {
   Typography,
   IconButton,
 } from '@mui/material';
-import { Delete, Edit } from '@mui/icons-material';
+import { Delete, Edit, Assessment } from '@mui/icons-material';
 import studentService from '../../services/studentService';
 
 
@@ -25,6 +26,8 @@ function StudentList() {
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [openModal, setOpenModal] = useState(false);
+  const [openReportModal, setOpenReportModal] = useState(false);
+  const [selectedStudentId, setSelectedStudentId] = useState<number>(0);
 
   //Charger les étudiants au montage du composant
   useEffect(() => {
@@ -52,6 +55,11 @@ function StudentList() {
       }
     }
   };
+
+  const handleViewReport = (studentId: number) => {
+    setSelectedStudentId(studentId);
+    setOpenReportModal(true);
+  }
 
   if (loading) {
     return <Typography>Loading...</Typography>;
@@ -91,6 +99,13 @@ function StudentList() {
                     <Edit />
                   </IconButton>
                   <IconButton
+                    color="info"
+                    size="small"
+                    onClick={() => student.id && handleViewReport(student.id)}
+                  >
+                    <Assessment />
+                  </IconButton>
+                  <IconButton
                     color="error"
                     size="small"
                     onClick={() => student.id && handleDelete(student.id)}
@@ -109,6 +124,7 @@ function StudentList() {
           No students found
         </Typography>
       )}
+      {/* Modal 1 : Add Student */}
       <Dialog open={openModal} onClose={() => setOpenModal(false)}>
         <DialogTitle>Add New Student</DialogTitle>
         <DialogContent>
@@ -117,6 +133,16 @@ function StudentList() {
               setOpenModal(false);  // Ferme le modal
               loadStudents();       // Recharge la liste
             }}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal 2 : Student Report */}
+      <Dialog open={openReportModal} onClose={() => setOpenReportModal(false)}>
+        <DialogContent>
+          <StudentReport
+            studentId={selectedStudentId}
+            onClose={() => setOpenReportModal(false)}
           />
         </DialogContent>
       </Dialog>

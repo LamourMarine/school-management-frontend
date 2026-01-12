@@ -1,5 +1,5 @@
 import api from "./api";
-import type { Student } from "../types/index";
+import type { Student, Grade } from "../types/index";
 import type {AxiosResponse}  from 'axios';
 
 const studentService = {
@@ -24,8 +24,8 @@ createStudent: (student: Student): Promise<AxiosResponse<Student>> => {
     return api.delete<void>(`/students/${id}`);
 },
   // Récupérer les notes d'un étudiant
-  getStudentGrades: (id: number): Promise<AxiosResponse<any>> => {
-    return api.get<any>(`/students/${id}/grades`);
+  getStudentGrades: (id: number): Promise<AxiosResponse<Grade[]>> => {
+    return api.get<Grade[]>(`/students/${id}/grades`);
 },
   // Récupérer la moyenne d'un étudiant
   getStudentAverage: (id: number): Promise<AxiosResponse<number>> => {
