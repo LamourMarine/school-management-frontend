@@ -1,16 +1,22 @@
-import React from 'react';
-import StudentList from './components/Students/StudentList';
-import { Container } from '@mui/material';
-import CourseList from './components/Courses/CourseList';
-import GradeList from './components/Grades/GradeList';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Layout from './components/Layout/Layout';
+import HomePage from './pages/HomePage';
+import StudentsPage from './pages/StudentsPage';
+import CoursesPage from './pages/CoursesPage';
+import GradesPage from './pages/GradesPage';
 
 function App() {
   return (
-    <Container maxWidth="lg">
-      <StudentList />
-      <CourseList />
-      <GradeList />
-    </Container>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<HomePage />} />
+          <Route path="students" element={<StudentsPage />} />
+          <Route path="courses" element={<CoursesPage />} />
+          <Route path="grades" element={<GradesPage />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
 
