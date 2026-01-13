@@ -2,6 +2,7 @@ import type { Student } from "../../types/index";
 import { useState, useEffect } from "react";
 import { Button, Box, TextField } from '@mui/material';
 import studentService from "../../services/studentService";
+import { useNotification } from "../../context/NotificationContext";
 
 interface StudentFormProps {
     onSuccess: () => void;  // Fonction qui ne retourne rien
@@ -11,6 +12,7 @@ interface StudentFormProps {
 function StudentForm({ onSuccess, studentToEdit }: StudentFormProps) {
     const [firstName, setFirstName] = useState(studentToEdit?.firstName ||"");
     const [lastName, setLastName] = useState(studentToEdit?.lastName ||"");
+    const  {showNotification}  = useNotification();
 
     const handleSubmit = async () => {
         // Créer l'objet student
@@ -22,12 +24,15 @@ function StudentForm({ onSuccess, studentToEdit }: StudentFormProps) {
 
             if (studentToEdit) {
                 await studentService.updateStudent(studentToEdit.id!, student);
+                showNotification('Student updated successfully!', 'success');
             } else {
                 await studentService.createStudent(student);
+                showNotification('Student created successfully!', 'success');
             }
             onSuccess();
         } catch (error) {
             console.error('Error creating student:', error);
+            showNotification('Failed to save student', 'error');
         }
     };
 
