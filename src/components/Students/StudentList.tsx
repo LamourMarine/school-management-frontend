@@ -28,6 +28,8 @@ function StudentList() {
   const [openModal, setOpenModal] = useState(false);
   const [openReportModal, setOpenReportModal] = useState(false);
   const [selectedStudentId, setSelectedStudentId] = useState<number>(0);
+  const [selectedStudent, setSelectedStudent] = useState<Student | undefined>(undefined);
+  const [isEditing, setIsEditing] = useState(false);
 
   //Charger les étudiants au montage du composant
   useEffect(() => {
@@ -44,6 +46,19 @@ function StudentList() {
       setLoading(false);
     }
   };
+
+
+  const handleEdit = (student : Student) => {
+    setSelectedStudent(student);
+    setIsEditing(true);
+    setOpenModal(true);
+  }
+
+  const handleAdd = () => {
+    setSelectedStudent(undefined);
+    setIsEditing(false);
+    setOpenModal(true);
+  }
 
   const handleDelete = async (id: number) => {
     if (window.confirm('Are you sure you want to delete this student?')) {
@@ -72,7 +87,7 @@ function StudentList() {
         <Button
           variant="contained"
           color="primary"
-          onClick={() => setOpenModal(true)}
+          onClick={handleAdd}
         >
           Add Student
         </Button>
@@ -95,7 +110,11 @@ function StudentList() {
                 <TableCell>{student.lastName}</TableCell>
                 <TableCell>{student.firstName}</TableCell>
                 <TableCell align="right">
-                  <IconButton color="primary" size="small">
+                  <IconButton 
+                  color="primary" 
+                  size="small"
+                  onClick={() => handleEdit(student)}
+                  >
                     <Edit />
                   </IconButton>
                   <IconButton
@@ -126,9 +145,10 @@ function StudentList() {
       )}
       {/* Modal 1 : Add Student */}
       <Dialog open={openModal} onClose={() => setOpenModal(false)}>
-        <DialogTitle>Add New Student</DialogTitle>
+        <DialogTitle>{isEditing ? "Edit Student" : "Add New Student"}</DialogTitle>
         <DialogContent>
           <StudentForm
+          studentToEdit={selectedStudent}
             onSuccess={() => {
               setOpenModal(false);  // Ferme le modal
               loadStudents();       // Recharge la liste

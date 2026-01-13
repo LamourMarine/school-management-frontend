@@ -1,15 +1,16 @@
 import type { Student } from "../../types/index";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button, Box, TextField } from '@mui/material';
 import studentService from "../../services/studentService";
 
 interface StudentFormProps {
     onSuccess: () => void;  // Fonction qui ne retourne rien
+    studentToEdit?: Student;
 }
 
-function StudentForm({ onSuccess }: StudentFormProps) {
-    const [firstName, setFirstName] = useState("");
-    const [lastName, setLastName] = useState("");
+function StudentForm({ onSuccess, studentToEdit }: StudentFormProps) {
+    const [firstName, setFirstName] = useState(studentToEdit?.firstName ||"");
+    const [lastName, setLastName] = useState(studentToEdit?.lastName ||"");
 
     const handleSubmit = async () => {
         // Créer l'objet student
@@ -18,7 +19,12 @@ function StudentForm({ onSuccess }: StudentFormProps) {
                 firstName: firstName,
                 lastName: lastName
             };
-            await studentService.createStudent(student);
+
+            if (studentToEdit) {
+                await studentService.updateStudent(studentToEdit.id!, student);
+            } else {
+                await studentService.createStudent(student);
+            }
             onSuccess();
         } catch (error) {
             console.error('Error creating student:', error);
@@ -48,7 +54,7 @@ function StudentForm({ onSuccess }: StudentFormProps) {
                 onClick={handleSubmit}
                 sx={{ mt: 2 }}
             >
-                Save
+                {studentToEdit ? "Update" : "Save"};
             </Button>
         </Box>
     );

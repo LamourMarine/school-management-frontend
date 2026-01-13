@@ -20,40 +20,54 @@ import { Dialog, DialogTitle, DialogContent } from '@mui/material';
 
 
 function CourseList() {
-    const [courses, setCourses] = useState<Course[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [openModal, setOpenModal] = useState(false);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [openModal, setOpenModal] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState<Course | undefined>(undefined);
+  const [isEditing, setIsEditing] = useState(false);
 
-    //Charger les cours au montage du composant
-    useEffect(() => {
-        loadCourses();
-    }, []);
+  //Charger les cours au montage du composant
+  useEffect(() => {
+    loadCourses();
+  }, []);
 
-    const loadCourses = async () => {
-        try {
-            const response = await courseService.getAllCourses();
-            setCourses(response.data);
-            setLoading(false)
-        } catch (error) {
-            console.error('Error loading courses:', error);
-            setLoading(false);
-        }
-    };
-
-    const handleDelete = async (id: number) => {
-        if (window.confirm('Are you sure you want te delete this course?')) {
-            try {
-                await courseService.deleteCourse(id);
-                loadCourses(); //recharger la liste
-            } catch (error) {
-                console.error('Error deleting course:', error);
-            }
-        }
-    };
-
-    if (loading) {
-        return <Typography>Loading...</Typography>;
+  const loadCourses = async () => {
+    try {
+      const response = await courseService.getAllCourses();
+      setCourses(response.data);
+      setLoading(false)
+    } catch (error) {
+      console.error('Error loading courses:', error);
+      setLoading(false);
     }
+  };
+
+  const handleEdit = (course: Course) => {
+    setSelectedCourse(course);
+    setIsEditing(true);
+    setOpenModal(true);
+  }
+
+  const handleAdd = () => {
+    setSelectedCourse(undefined);
+    setIsEditing(false);
+    setOpenModal(true);
+  }
+
+  const handleDelete = async (id: number) => {
+    if (window.confirm('Are you sure you want te delete this course?')) {
+      try {
+        await courseService.deleteCourse(id);
+        loadCourses(); //recharger la liste
+      } catch (error) {
+        console.error('Error deleting course:', error);
+      }
+    }
+  };
+
+  if (loading) {
+    return <Typography>Loading...</Typography>;
+  }
   return (
     <Box sx={{ p: 3 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
@@ -61,7 +75,7 @@ function CourseList() {
         <Button
           variant="contained"
           color="primary"
-          onClick={() => setOpenModal(true)}
+          onClick={handleAdd}
         >
           Add Course
         </Button>
@@ -86,7 +100,11 @@ function CourseList() {
                 <TableCell>{course.code}</TableCell>
                 <TableCell>{course.teacher}</TableCell>
                 <TableCell align="right">
-                  <IconButton color="primary" size="small">
+                  <IconButton
+                    color="primary"
+                    size="small"
+                    onClick={() => handleEdit(course)}
+                  >
                     <Edit />
                   </IconButton>
                   <IconButton
@@ -108,17 +126,19 @@ function CourseList() {
           No courses found
         </Typography>
       )}
-            <Dialog open={openModal} onClose={() => setOpenModal(false)}>
-        <DialogTitle>Add New Course</DialogTitle>
+      <Dialog open={openModal} onClose={() => setOpenModal(false)}>
+        <DialogTitle>{isEditing ? "Edit Course" : "Add New Course"}</DialogTitle>
         <DialogContent>
           <CourseForm
+            courseToEdit={selectedCourse}
             onSuccess={() => {
-              setOpenModal(false);  // Ferme le modal
-              loadCourses();       // Recharge la liste
+              setOpenModal(false);
+              loadCourses();
             }}
           />
         </DialogContent>
       </Dialog>
+
 
     </Box>
   );
