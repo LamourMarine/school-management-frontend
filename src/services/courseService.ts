@@ -23,6 +23,17 @@ const courseService = {
     deleteCourse: (id: number): Promise<AxiosResponse<void>> => {
         return api.delete<void>(`/courses/${id}`);
     },
+    // Vérifier si le cours a des notes
+    hasGrades: async (courseId: number): Promise<boolean> => {
+        try {
+            const response = await api.get('/grades');
+            const grades = response.data;
+            return grades.some((grade: any) => grade.course.id === courseId);
+        } catch (error) {
+            console.error('Error checking grades:', error);
+            return false;
+        }
+    }
 };
 
 export default courseService;

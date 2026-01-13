@@ -17,6 +17,9 @@ import {
 } from '@mui/material';
 import { Delete, Edit } from '@mui/icons-material';
 import { Dialog, DialogTitle, DialogContent } from '@mui/material';
+import { useNotification } from "../../context/NotificationContext";
+import ConfirmDialog from "../Common/ConfirmDialog";
+
 
 
 function CourseList() {
@@ -25,6 +28,11 @@ function CourseList() {
   const [openModal, setOpenModal] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<Course | undefined>(undefined);
   const [isEditing, setIsEditing] = useState(false);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [courseToDelete, setCourseToDelete] = useState<number | null>(null);
+
+  const { showNotification } = useNotification();
+
 
   //Charger les cours au montage du composant
   useEffect(() => {
@@ -54,16 +62,50 @@ function CourseList() {
     setOpenModal(true);
   }
 
-  const handleDelete = async (id: number) => {
-    if (window.confirm('Are you sure you want te delete this course?')) {
+  const handleDeleteClick = async (id: number) => {
+    // Vérifier si le cours a des notes
+    const hasGrades = await courseService.hasGrades(id);
+
+    if (hasGrades) {
+      showNotification(
+        'Cannot delete: This course has grades. Please delete the grades first.',
+        'warning'
+      );
+      return;
+    }
+    setCourseToDelete(id);
+    setConfirmDialogOpen(true);
+  };
+
+
+  const handleDeleteConfirm = async () => {
+    if (courseToDelete) {
       try {
-        await courseService.deleteCourse(id);
+        await courseService.deleteCourse(courseToDelete);
+        showNotification('Course deleted successfully!', 'success');
         loadCourses(); //recharger la liste
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error deleting course:', error);
+        showNotification('Failed to delete course', 'error');
+        // Message d'erreur explicite
+        if (error.response?.status === 500 || error.response?.status === 409) {
+          showNotification(
+            'Cannot delete: This course has grades. Please delete the grades first.',
+            'error'
+          );
+        } else {
+          showNotification('Failed to delete course', 'error');
+        }
       }
     }
+    setConfirmDialogOpen(false);
+    setCourseToDelete(null);
   };
+
+  const handleDeleteCancel = () => {
+    setConfirmDialogOpen(false);
+    setCourseToDelete(null);
+  }
 
   if (loading) {
     return <Typography>Loading...</Typography>;
@@ -110,7 +152,7 @@ function CourseList() {
                   <IconButton
                     color="error"
                     size="small"
-                    onClick={() => course.id && handleDelete(course.id)}
+                    onClick={() => course.id && handleDeleteClick(course.id)}
                   >
                     <Delete />
                   </IconButton>
@@ -138,8 +180,16 @@ function CourseList() {
           />
         </DialogContent>
       </Dialog>
-
-
+      <ConfirmDialog
+        open={confirmDialogOpen}
+        title="Delete Course"
+        message="Are you sure you want to delete this course? This action cannot be undone."
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
+        confirmText="Delete"
+        cancelText="Cancel"
+        confirmColor="error"
+      />
     </Box>
   );
 }

@@ -1,6 +1,6 @@
 import api from "./api";
 import type { Student, Grade } from "../types/index";
-import type {AxiosResponse}  from 'axios';
+import type { AxiosResponse } from 'axios';
 
 const studentService = {
   // Récupérer tous les étudiants
@@ -10,27 +10,38 @@ const studentService = {
   // Récupérer un étudiant par ID
   getStudentById: (id: number): Promise<AxiosResponse<Student>> => {
     return api.get<Student>(`/students/${id}`);
-},
+  },
   // Créer un étudiant
-createStudent: (student: Student): Promise<AxiosResponse<Student>> => {
-  return api.post<Student>('/students', student);
-},
+  createStudent: (student: Student): Promise<AxiosResponse<Student>> => {
+    return api.post<Student>('/students', student);
+  },
   // Modifier un étudiant
   updateStudent: (id: number, student: Student): Promise<AxiosResponse<Student>> => {
     return api.put<Student>(`/students/${id}`, student);
-},
+  },
   // Supprimer un étudiant
   deleteStudent: (id: number): Promise<AxiosResponse<void>> => {
     return api.delete<void>(`/students/${id}`);
-},
+  },
+  // Vérifier si l'etudiant a des notes
+  hasGrades: async (studentId: number): Promise<boolean> => {
+    try {
+      const response = await api.get('/grades');
+      const grades = response.data;
+      return grades.some((grade: any) => grade.student.id === studentId);
+    } catch (error) {
+      console.error('Error checking grades:', error);
+      return false;
+    }
+  },
   // Récupérer les notes d'un étudiant
   getStudentGrades: (id: number): Promise<AxiosResponse<Grade[]>> => {
     return api.get<Grade[]>(`/students/${id}/grades`);
-},
+  },
   // Récupérer la moyenne d'un étudiant
   getStudentAverage: (id: number): Promise<AxiosResponse<number>> => {
     return api.get<number>(`/students/${id}/average`);
-},
+  },
 };
 
 export default studentService;

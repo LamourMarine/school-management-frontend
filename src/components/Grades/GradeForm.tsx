@@ -4,6 +4,8 @@ import { Button, Box, TextField, MenuItem, InputProps } from '@mui/material';
 import gradeService from "../../services/gradeService";
 import studentService from "../../services/studentService";
 import courseService from "../../services/courseService";
+import { useNotification } from "../../context/NotificationContext";
+
 
 interface GradeFormProps {
     onSuccess: () => void;
@@ -17,6 +19,9 @@ function GradeForm({ onSuccess, gradeToEdit }: GradeFormProps) {
 
     const [students, setStudents] = useState<Student[]>([]);
     const [courses, setCourses] = useState<Course[]>([]);
+
+    const  {showNotification}  = useNotification();
+
 
     useEffect(() => {
         loadStudents();
@@ -55,12 +60,15 @@ function GradeForm({ onSuccess, gradeToEdit }: GradeFormProps) {
 
             if (gradeToEdit) {
                 await gradeService.updateGrade(gradeToEdit.id!, grade);
+                showNotification('Grade updated successfully!', 'success');
             } else {
                 await gradeService.createGrade(grade);
+                showNotification('Grade created successfully!', 'success');
             }
             onSuccess();
         } catch (error) {
             console.error('Error creating grade:', error);
+            showNotification('Failed to save grade', 'error');
         }
     };
 

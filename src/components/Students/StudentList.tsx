@@ -18,7 +18,8 @@ import {
 } from '@mui/material';
 import { Delete, Edit, Assessment } from '@mui/icons-material';
 import studentService from '../../services/studentService';
-
+import { useNotification } from "../../context/NotificationContext";
+import ConfirmDialog from '../Common/ConfirmDialog';
 
 
 
@@ -30,6 +31,10 @@ function StudentList() {
   const [selectedStudentId, setSelectedStudentId] = useState<number>(0);
   const [selectedStudent, setSelectedStudent] = useState<Student | undefined>(undefined);
   const [isEditing, setIsEditing] = useState(false);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [studentToDelete, setStudentToDelete] = useState<number | null>(null);
+  const { showNotification } = useNotification();
+
 
   //Charger les étudiants au montage du composant
   useEffect(() => {
@@ -48,7 +53,7 @@ function StudentList() {
   };
 
 
-  const handleEdit = (student : Student) => {
+  const handleEdit = (student: Student) => {
     setSelectedStudent(student);
     setIsEditing(true);
     setOpenModal(true);
@@ -60,15 +65,48 @@ function StudentList() {
     setOpenModal(true);
   }
 
-  const handleDelete = async (id: number) => {
-    if (window.confirm('Are you sure you want to delete this student?')) {
+  const handleDeleteClick = async (id: number) => {
+    // Verifier si l'etudiant à des notes
+    const hasGrades = await studentService.hasGrades(id);
+
+    if (hasGrades) {
+      showNotification(
+        'Cannot delete: This student has grades. Please delete the grades first.',
+        'warning'
+      );
+      return;
+    }
+    setStudentToDelete(id);
+    setConfirmDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (studentToDelete) {
       try {
-        await studentService.deleteStudent(id);
-        loadStudents(); //recharger la liste
-      } catch (error) {
+        await studentService.deleteStudent(studentToDelete);
+        showNotification('Student deleted successfully!', 'success');
+        loadStudents();
+      } catch (error:any) {
         console.error('Error deleting student:', error);
+        showNotification('Failed to delete student', 'error');
+        //Message d'erreur explicite
+        if (error.response?.status === 500 || error.response?.status === 409) {
+          showNotification(
+            'Cannot delete: This student has grades. Please delete the grades first.',
+            'error'
+          );
+        } else {
+          showNotification('Failed to delete student', 'error');
+        }
       }
     }
+    setConfirmDialogOpen(false);
+    setStudentToDelete(null);
+  };
+
+  const handleDeleteCancel = () => {
+    setConfirmDialogOpen(false);
+    setStudentToDelete(null);
   };
 
   const handleViewReport = (studentId: number) => {
@@ -110,10 +148,10 @@ function StudentList() {
                 <TableCell>{student.lastName}</TableCell>
                 <TableCell>{student.firstName}</TableCell>
                 <TableCell align="right">
-                  <IconButton 
-                  color="primary" 
-                  size="small"
-                  onClick={() => handleEdit(student)}
+                  <IconButton
+                    color="primary"
+                    size="small"
+                    onClick={() => handleEdit(student)}
                   >
                     <Edit />
                   </IconButton>
@@ -127,7 +165,7 @@ function StudentList() {
                   <IconButton
                     color="error"
                     size="small"
-                    onClick={() => student.id && handleDelete(student.id)}
+                    onClick={() => student.id && handleDeleteClick(student.id)}
                   >
                     <Delete />
                   </IconButton>
@@ -148,7 +186,7 @@ function StudentList() {
         <DialogTitle>{isEditing ? "Edit Student" : "Add New Student"}</DialogTitle>
         <DialogContent>
           <StudentForm
-          studentToEdit={selectedStudent}
+            studentToEdit={selectedStudent}
             onSuccess={() => {
               setOpenModal(false);  // Ferme le modal
               loadStudents();       // Recharge la liste
@@ -166,6 +204,16 @@ function StudentList() {
           />
         </DialogContent>
       </Dialog>
+      <ConfirmDialog
+        open={confirmDialogOpen}
+        title="Delete Student"
+        message="Are you sure you want to delete this student? This action cannot be undone."
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
+        confirmText="Delete"
+        cancelText="Cancel"
+        confirmColor="error"
+      />
     </Box>
   );
 }
