@@ -1,4 +1,4 @@
-import type { CreateGradeDto, Course, Student } from "../../types";
+import type { CreateGradeDto, Course, Student, Grade } from "../../types";
 import { useEffect, useState } from "react";
 import { Button, Box, TextField, MenuItem, InputProps } from '@mui/material';
 import gradeService from "../../services/gradeService";
@@ -7,9 +7,10 @@ import courseService from "../../services/courseService";
 
 interface GradeFormProps {
     onSuccess: () => void;
+    gradeToEdit?: Grade;
 }
 
-function GradeForm({ onSuccess }: GradeFormProps) {
+function GradeForm({ onSuccess, gradeToEdit }: GradeFormProps) {
     const [score, setScore] = useState<number>(0);
     const [studentId, setStudentId] = useState<number>(0);
     const [courseId, setCourseId] = useState<number>(0);
@@ -21,6 +22,18 @@ function GradeForm({ onSuccess }: GradeFormProps) {
         loadStudents();
         loadCourses();
     }, []);
+
+    useEffect(() => {
+        if(gradeToEdit) {
+            setScore(gradeToEdit.score);
+            setStudentId(gradeToEdit.student.id!);
+            setCourseId(gradeToEdit.course.id!);
+        } else {
+            setScore(0);
+            setStudentId(0);
+            setCourseId(0);
+        }
+    }, [gradeToEdit])
 
     const loadStudents = async () => {
         const response = await studentService.getAllStudents();
@@ -39,7 +52,12 @@ function GradeForm({ onSuccess }: GradeFormProps) {
                 studentId: studentId,
                 courseId: courseId
             };
-            await gradeService.createGrade(grade);
+
+            if (gradeToEdit) {
+                await gradeService.updateGrade(gradeToEdit.id!, grade);
+            } else {
+                await gradeService.createGrade(grade);
+            }
             onSuccess();
         } catch (error) {
             console.error('Error creating grade:', error);
@@ -100,8 +118,8 @@ function GradeForm({ onSuccess }: GradeFormProps) {
                 variant="contained"
                 onClick={handleSubmit}
                 sx={{ mt: 2 }}
-            >
-                Save
+                >
+                {gradeToEdit ? "Update" : "Save"}
             </Button>
         </Box>
     );

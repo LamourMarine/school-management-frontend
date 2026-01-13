@@ -5,12 +5,13 @@ import courseService from "../../services/courseService";
 
 interface CourseFormProps {
     onSuccess: () => void; // Fonction qui ne retourne rien
+    courseToEdit?: Course;
 }
 
-function CourseForm({ onSuccess }: CourseFormProps) {
-    const [title, setTitle] = useState("");
-    const [code, setCode] = useState("");
-    const [teacher, setTeacher] = useState("");
+function CourseForm({ onSuccess, courseToEdit }: CourseFormProps) {
+    const [title, setTitle] = useState(courseToEdit?.title ||"");
+    const [code, setCode] = useState(courseToEdit?.code ||"");
+    const [teacher, setTeacher] = useState(courseToEdit?.teacher ||"");
 
     const handleSubmit = async () => {
         // Créer l'objet course
@@ -20,7 +21,12 @@ function CourseForm({ onSuccess }: CourseFormProps) {
                 code: code,
                 teacher: teacher,
             };
-            await courseService.createCourse(course);
+
+            if(courseToEdit) {
+                await courseService.updateCourse(courseToEdit.id!, course);
+            } else {
+                await courseService.createCourse(course);
+            }
             onSuccess();
         } catch (error) {
             console.error('Error creating course:', error);
@@ -59,7 +65,7 @@ function CourseForm({ onSuccess }: CourseFormProps) {
                 onClick={handleSubmit}
                 sx={{ mt: 2 }}
             >
-                Save
+                {courseToEdit ? "Update" : "Save"};
             </Button>
         </Box>
     );

@@ -23,6 +23,8 @@ function GradeList() {
     const [grades, setGrades] = useState<Grade[]>([]);
     const [loading, setLoading] = useState(true);
     const [openModal, setOpenModal] = useState(false);
+    const [selectedGrade, setSelectedGrade] = useState<Grade | undefined>(undefined);
+    const [isEditing, setIsEditing] = useState(false);
 
     // Charger les notes au mntage du composant
     useEffect(() => {
@@ -39,6 +41,18 @@ function GradeList() {
             setLoading(false);
         }
     };
+
+    const handleEdit = (grade : Grade) => {
+      setSelectedGrade(grade);
+      setIsEditing(true);
+      setOpenModal(true);
+    }
+
+    const handleAdd = () => {
+      setSelectedGrade(undefined);
+      setIsEditing(false);
+      setOpenModal(true);
+    }
 
     const handleDelete = async (id: number) => {
         if (window.confirm('Are you sure you want to delete this grade ?')) {
@@ -62,7 +76,7 @@ function GradeList() {
         <Button
           variant="contained"
           color="primary"
-          onClick={() => setOpenModal(true)}
+          onClick={handleAdd}
         >
           Add Grades
         </Button>
@@ -87,7 +101,11 @@ function GradeList() {
                 <TableCell>{grade.student.firstName} {grade.student.lastName}</TableCell>
                 <TableCell>{grade.course.title}</TableCell>
                 <TableCell align="right">
-                  <IconButton color="primary" size="small">
+                  <IconButton 
+                  color="primary" 
+                  size="small"
+                  onClick={() => handleEdit(grade)}
+                  >
                     <Edit />
                   </IconButton>
                   <IconButton
@@ -110,9 +128,10 @@ function GradeList() {
         </Typography>
       )}
       <Dialog open={openModal} onClose={() => setOpenModal(false)}>
-        <DialogTitle>Add New Grades</DialogTitle>
+        <DialogTitle>{isEditing ? "Update" : "Add New Grade"}</DialogTitle>
         <DialogContent>
           <GradeForm
+          gradeToEdit={selectedGrade}
             onSuccess={() => {
               setOpenModal(false);  // Ferme le modal
               loadGrades();       // Recharge la liste
