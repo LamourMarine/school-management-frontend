@@ -1,12 +1,19 @@
 import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { School } from '@mui/icons-material';
+import { School, Logout } from '@mui/icons-material';
+import { useAuth } from '../../context/AuthContext';
 
 function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, logout } = useAuth();
 
   const isActive = (path: string) => location.pathname === path;
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <AppBar position="static">
@@ -20,7 +27,7 @@ function Navbar() {
           School Management
         </Typography>
 
-        <Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <Button 
             color="inherit"
             onClick={() => navigate('/students')}
@@ -50,6 +57,29 @@ function Navbar() {
             }}
           >
             Grades
+          </Button>
+
+          {/* Nom d'utilisateur */}
+          <Typography 
+            variant="body1" 
+            sx={{ 
+              ml: 2, 
+              px: 2, 
+              py: 0.5,
+              borderLeft: '1px solid rgba(255, 255, 255, 0.3)'
+            }}
+          >
+            {user?.username}
+          </Typography>
+
+          {/* Bouton Logout */}
+          <Button 
+            color="inherit"
+            onClick={handleLogout}
+            startIcon={<Logout />}
+            sx={{ ml: 1 }}
+          >
+            Logout
           </Button>
         </Box>
       </Toolbar>
