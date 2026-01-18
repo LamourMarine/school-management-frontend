@@ -32,3 +32,26 @@ export interface Grade {
   course: Course;
 }
 
+export interface User {
+  id?: number;
+  username: String;
+  email: String;
+  role: String;
+}
+
+export interface LoginRequest {
+  username: String;
+  password: String;
+}
+
+export interface RegisterRequest {
+  username: string;
+  email: string;
+  password: string;
+}
+
+export interface AuthResponse {
+  token: string;
+  username: string;
+  role: string;
+}

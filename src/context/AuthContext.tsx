@@ -1,0 +1,128 @@
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import type { User, LoginRequest, RegisterRequest } from '../types';
+import authService from '../services/authService';
+import { useNotification } from './NotificationContext';
+import { error } from 'node:console';
+
+interface AuthContextType {
+    user: User | null;
+    token: string | null;
+    isAuthenticated: boolean;
+    login: (credentials: LoginRequest) => Promise<void>;
+    register: (userData: RegisterRequest) => Promise<void>;
+    logout: () => void;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+interface AuthProviderProps {
+    children: ReactNode;
+}
+
+export function AuthProvider({ children }: AuthProviderProps) {
+    const [user, setUser] = useState<User | null>(null);
+    const [token, setToken] = useState<string | null>(null);
+    const {showNotification} = useNotification();
+
+    // Charger le token et l'utilisateur au démarrage
+    useEffect(() => {
+        const savedToken = authService.getToken();
+        const savedUser = authService.getUser();
+
+        if (savedToken && savedUser) {
+    try {
+      const parsedUser = JSON.parse(savedUser);
+      setToken(savedToken);
+      setUser(parsedUser);
+    } catch (error) {
+      // Si le JSON est invalide, nettoyer le localStorage
+      console.error('Invalid user data in localStorage:', error);
+      authService.logout();
+    }
+  }
+}, []);
+    //Login
+const login = async (credentials: LoginRequest) => {
+  try {
+    const response = await authService.login(credentials);
+    const { token, username, role } = response.data;
+
+    // Créer l'objet user manuellement
+    const user: User = { username, email: '', role };
+
+    // Sauvegarder dans le state
+    setToken(token);
+    setUser(user);
+
+    // Sauvegarder dans localStorage
+    authService.saveAuthData(token, user);
+
+    showNotification('Login successful!', 'success');
+  } catch (error: any) {
+    console.error('Login error:', error);
+    showNotification(
+      error.response?.data?.message || 'Login failed. Please check your credentials.',
+      'error'
+    );
+    throw error;
+  }
+};
+    //Register
+const register = async (userData: RegisterRequest) => {
+  try {
+    const response = await authService.register(userData);
+    const { token, username, role } = response.data;
+
+    // Créer l'objet user manuellement
+    const user: User = { username, email: userData.email, role };
+
+    // Sauvegarder dans le state
+    setToken(token);
+    setUser(user);
+
+    // Sauvegarder dans localStorage
+    authService.saveAuthData(token, user);
+
+    showNotification('Registration successful!', 'success');
+  } catch (error: any) {
+    console.error('Registration error:', error);
+    showNotification(
+      error.response?.data?.message || 'Registration failed. Please try again.',
+      'error'
+    );
+    throw error;
+  }
+};    //Logout
+    const logout = () => {
+        setUser(null);
+        setToken(null);
+        authService.logout();
+        showNotification('Logged out successfully', 'info');
+    };
+
+    const isAuthenticated = !!token && !!user;
+
+    return (
+    <AuthContext.Provider
+      value={{
+        user,
+        token,
+        isAuthenticated,
+        login,
+        register,
+        logout,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+//Hook personnalisépour utiliser le contexte
+export function useAuth() {
+    const context = useContext(AuthContext);
+    if (context === undefined) {
+        throw new Error('useAuth must be used within an authProvider');
+    }
+    return context;
+}
