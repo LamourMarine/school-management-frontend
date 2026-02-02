@@ -6,6 +6,7 @@ React TypeScript frontend for the school management system.
 
 - **React 18**
 - **TypeScript**
+- **Vite**
 - **Material-UI (MUI)**
 - **Axios** (API calls)
 
@@ -19,6 +20,7 @@ React TypeScript frontend for the school management system.
 ## Installation
 
 ### Prerequisites
+
 - Node.js 18+
 - Backend API running on http://localhost:8080
 
@@ -40,7 +42,7 @@ npm install
 npm run dev
 ```
 
-The app will be available at `http://localhost:3000`
+The app will be available at `http://localhost:5173`
 
 ## Related Projects
 
@@ -48,8 +50,8 @@ The app will be available at `http://localhost:3000`
 
 ## Author
 
-**Marine** - Full-Stack Developer in training  
-[Your Portfolio Link]
+**Marine Lamour** - Full-Stack Developer  
+[Portfolio](https://ml-dev.netlify.app)
 
 ## License
 
