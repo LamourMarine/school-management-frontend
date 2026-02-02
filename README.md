@@ -46,13 +46,6 @@ The app will be available at `http://localhost:3000`
 
 - [Backend API](https://github.com/YOUR_USERNAME/school-management-api) - Spring Boot REST API
 
-## Next Steps
-
-- [ ] Edit student
-- [ ] Course management
-- [ ] Grade management
-- [ ] Student report card
-
 ## Author
 
 **Marine** - Full-Stack Developer in training  
