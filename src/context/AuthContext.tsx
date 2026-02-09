@@ -26,7 +26,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     // Charger le token et l'utilisateur au démarrage
     useEffect(() => {
-        const savedToken = authService.getToken();
+        const savedToken = authService.getAccessToken();
         const savedUser = authService.getUser();
 
         if (savedToken && savedUser) {
@@ -45,17 +45,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
 const login = async (credentials: LoginRequest) => {
   try {
     const response = await authService.login(credentials);
-    const { token, username, role } = response.data;
+    console.log('🔍 Response complète:', response.data);
+    const { accessToken, refreshToken, username, role } = response.data;
+    console.log('🔍 Access token:', accessToken);
+    console.log('🔍 Refresh token:', refreshToken);
 
     // Créer l'objet user manuellement
     const user: User = { username, email: '', role };
 
     // Sauvegarder dans le state
-    setToken(token);
+    setToken(accessToken);
     setUser(user);
 
     // Sauvegarder dans localStorage
-    authService.saveAuthData(token, user);
+    authService.saveAuthData(accessToken, refreshToken, user);
 
     showNotification('Login successful!', 'success');
   } catch (error: any) {
@@ -71,17 +74,17 @@ const login = async (credentials: LoginRequest) => {
 const register = async (userData: RegisterRequest) => {
   try {
     const response = await authService.register(userData);
-    const { token, username, role } = response.data;
+    const { accessToken, refreshToken, username, role } = response.data;
 
     // Créer l'objet user manuellement
     const user: User = { username, email: userData.email, role };
 
     // Sauvegarder dans le state
-    setToken(token);
+    setToken(accessToken);
     setUser(user);
 
     // Sauvegarder dans localStorage
-    authService.saveAuthData(token, user);
+    authService.saveAuthData(accessToken, refreshToken, user);
 
     showNotification('Registration successful!', 'success');
   } catch (error: any) {
