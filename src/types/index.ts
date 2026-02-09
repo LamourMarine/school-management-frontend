@@ -52,7 +52,7 @@ export interface RegisterRequest {
 
 export interface AuthResponse {
   accessToken: string;   
-  refreshToken: string;
+ // refreshToken: string;
   username: string;
   role: string;
 }
