@@ -65,17 +65,6 @@ api.interceptors.response.use(
       originalRequest._retry = true;
       isRefreshing = true;
 
-      const refreshToken = localStorage.getItem('refreshToken');
-
-      if (!refreshToken) {
-        // Pas de refresh token, déconnecter
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('user');
-        window.location.href = '/login';
-        return Promise.reject(error);
-      }
-
       try {
         // Appeler /refresh sans passer par l'intercepteur
         const response = await axios.post(
@@ -106,7 +95,7 @@ api.interceptors.response.use(
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('user');
-        window.location.href = '/login';
+        window.dispatchEvent(new Event('auth:logout'));
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

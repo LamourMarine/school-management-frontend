@@ -8,6 +8,7 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;
+  isLoading: boolean;
   login: (credentials: LoginRequest) => Promise<void>;
   register: (userData: RegisterRequest) => Promise<void>;
   logout: () => void;
@@ -23,6 +24,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const { showNotification } = useNotification();
+  const [isLoading, setIsLoading] = useState(true);
 
   // Charger le token et l'utilisateur au démarrage
   useEffect(() => {
@@ -40,6 +42,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         authService.logout();
       }
     }
+    setIsLoading(false);
   }, []);
   //Login
   const login = async (credentials: LoginRequest) => {
@@ -94,7 +97,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
       );
       throw error;
     }
-  };    //Logout
+  };    
+  // Ecoute l'événement auth:logout déclenché par api.ts quand le refresh échoue
+  useEffect(() => {
+    const handleLogout = () => {
+        setUser(null);
+        setToken(null);
+        authService.clearAuthData();
+    };
+    window.addEventListener('auth:logout', handleLogout);
+    return () => window.removeEventListener('auth:logout', handleLogout);
+}, []);
+  //Logout
   const logout = async () => {
     setUser(null);
     setToken(null);
@@ -109,6 +123,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       value={{
         user,
         token,
+        isLoading,
         isAuthenticated,
         login,
         register,

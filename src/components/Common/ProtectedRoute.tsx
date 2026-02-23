@@ -7,13 +7,15 @@ interface ProtectedRouteProps {
 }
 
 function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
 
-  // Si l'utilisateur n'est pas connecté, rediriger vers /login
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+  if (isLoading) {
+      return <div>Chargement...</div>;
   }
 
+  if (!isAuthenticated) {
+      return <Navigate to="/login" replace />;
+  }
   // Sinon, afficher le contenu demandé
   return <>{children}</>;
 }
