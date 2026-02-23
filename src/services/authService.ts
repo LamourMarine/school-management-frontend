@@ -37,6 +37,12 @@ const authService = {
         localStorage.setItem('accessToken', accessToken);
         localStorage.setItem('user', JSON.stringify(user));
     },
+    // Nettoyer le local storage
+    clearAuthData: (): void => {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('user');
+},
+
 }
 
 export default authService;
