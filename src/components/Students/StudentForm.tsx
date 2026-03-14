@@ -7,9 +7,10 @@ import { useNotification } from "../../context/NotificationContext";
 interface StudentFormProps {
     onSuccess: () => void;  // Fonction qui ne retourne rien
     studentToEdit?: Student;
+    onClose: () => void;
 }
 
-function StudentForm({ onSuccess, studentToEdit }: StudentFormProps) {
+function StudentForm({ onSuccess, studentToEdit, onClose }: StudentFormProps) {
     const [firstName, setFirstName] = useState(studentToEdit?.firstName ||"");
     const [lastName, setLastName] = useState(studentToEdit?.lastName ||"");
     const  {showNotification}  = useNotification();
@@ -38,6 +39,12 @@ function StudentForm({ onSuccess, studentToEdit }: StudentFormProps) {
 
     return (
         <Box sx={{ p: 3 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2}}>
+                <Button variant="outlined" onClick={onClose}>
+                    Close
+                </Button>
+            </Box>
+
             <TextField
                 label="First Name"
                 value={firstName}
@@ -54,12 +61,14 @@ function StudentForm({ onSuccess, studentToEdit }: StudentFormProps) {
                 margin="normal"
             />
 
+
+
             <Button
                 variant="contained"
                 onClick={handleSubmit}
                 sx={{ mt: 2 }}
             >
-                {studentToEdit ? "Update" : "Save"};
+                {studentToEdit ? "Update" : "Save"}
             </Button>
         </Box>
     );

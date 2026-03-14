@@ -15,6 +15,7 @@ import {
   Typography,
   IconButton,
 } from '@mui/material';
+import { tableStyles } from '../../styles/tableStyles';
 import { Delete, Edit } from '@mui/icons-material';
 import { Dialog, DialogTitle, DialogContent } from '@mui/material';
 import { useNotification } from "../../context/NotificationContext";
@@ -123,25 +124,24 @@ function CourseList() {
         </Button>
       </Box>
 
-      <TableContainer component={Paper}>
+      <TableContainer component={Paper} sx={tableStyles.container}>
         <Table>
           <TableHead>
-            <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell>Title</TableCell>
-              <TableCell>Code</TableCell>
-              <TableCell>Teacher</TableCell>
-              <TableCell align="right">Actions</TableCell>
+            <TableRow sx={{ backgroundColor: '#f5f5f5', borderBottom: '2.5px solid #bdbdbd'}}>
+              <TableCell sx={tableStyles.headerCell}>Title</TableCell>
+              <TableCell sx={tableStyles.headerCell}>Code</TableCell>
+              <TableCell sx={tableStyles.headerCell}>Teacher</TableCell>
+              <TableCell sx={tableStyles.headerCell} align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {courses.map((course) => (
-              <TableRow key={course.id}>
-                <TableCell>{course.id}</TableCell>
-                <TableCell>{course.title}</TableCell>
-                <TableCell>{course.code}</TableCell>
-                <TableCell>{course.teacher}</TableCell>
-                <TableCell align="right">
+            {courses.map((course, index) => (
+              <TableRow key={course.id}
+              sx={tableStyles.bodyRow(index)}>
+                <TableCell sx={tableStyles.bodyCell}>{course.title}</TableCell>
+                <TableCell sx={tableStyles.bodyCell}>{course.code}</TableCell>
+                <TableCell sx={tableStyles.bodyCell}>{course.teacher}</TableCell>
+                <TableCell sx={tableStyles.bodyCell} align="right">
                   <IconButton
                     color="primary"
                     size="small"
@@ -177,6 +177,7 @@ function CourseList() {
               setOpenModal(false);
               loadCourses();
             }}
+            onClose={() => setOpenModal(false)}
           />
         </DialogContent>
       </Dialog>

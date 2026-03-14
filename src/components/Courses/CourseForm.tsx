@@ -8,9 +8,10 @@ import { useNotification } from "../../context/NotificationContext";
 interface CourseFormProps {
     onSuccess: () => void; // Fonction qui ne retourne rien
     courseToEdit?: Course;
+    onClose: () => void;
 }
 
-function CourseForm({ onSuccess, courseToEdit }: CourseFormProps) {
+function CourseForm({ onSuccess, courseToEdit, onClose }: CourseFormProps) {
     const [title, setTitle] = useState(courseToEdit?.title ||"");
     const [code, setCode] = useState(courseToEdit?.code ||"");
     const [teacher, setTeacher] = useState(courseToEdit?.teacher ||"");
@@ -41,6 +42,11 @@ function CourseForm({ onSuccess, courseToEdit }: CourseFormProps) {
 
         return (
         <Box sx={{ p: 3 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2}}>
+                <Button variant="outlined" onClick={onClose}>
+                    Close
+                </Button>
+            </Box>
             <TextField
                 label="Title"
                 value={title}
@@ -71,7 +77,7 @@ function CourseForm({ onSuccess, courseToEdit }: CourseFormProps) {
                 onClick={handleSubmit}
                 sx={{ mt: 2 }}
             >
-                {courseToEdit ? "Update" : "Save"};
+                {courseToEdit ? "Update" : "Save"}
             </Button>
         </Box>
     );
