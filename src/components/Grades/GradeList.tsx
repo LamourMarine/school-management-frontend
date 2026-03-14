@@ -1,6 +1,6 @@
 import type { Grade } from "../../types";
 import type { Student } from "../../types";
-import { Dialog, DialogTitle, DialogContent } from "@mui/material";
+import { Dialog, DialogTitle, DialogContent, Chip } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import {
   Table,
@@ -15,6 +15,7 @@ import {
   Typography,
   IconButton,
 } from "@mui/material";
+import { tableStyles } from '../../styles/tableStyles';
 import { Delete, Edit } from "@mui/icons-material";
 import gradeService from "../../services/gradeService";
 import GradeForm from "./GradeForm";
@@ -49,6 +50,14 @@ function GradeList() {
       setLoading(false);
     }
   };
+
+  const sortedGrades = [...grades].sort((a, b) => {
+    // Trier par nom d'etudiant
+    const studentCompare = a.student.lastName.localeCompare(b.student.lastName);
+    if(studentCompare !== 0) return studentCompare;
+    // Par matiere
+    return a.course.title.localeCompare(b.course.title);
+  })
 
   const handleEdit = (grade: Grade) => {
     setSelectedGrade(grade);
@@ -100,27 +109,41 @@ function GradeList() {
         </Button>
       </Box>
 
-      <TableContainer component={Paper}>
+      <TableContainer component={Paper} sx={tableStyles.container}>
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell>Score</TableCell>
-              <TableCell>Student</TableCell>
-              <TableCell>Course</TableCell>
-              <TableCell align="right">Actions</TableCell>
+              <TableCell sx={tableStyles.headerCell}>Student</TableCell>
+              <TableCell sx={tableStyles.headerCell}>Course</TableCell>
+              <TableCell sx={tableStyles.headerCell}>Score</TableCell>
+              <TableCell sx={tableStyles.headerCell} align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {grades.map((grade) => (
-              <TableRow key={grade.id}>
-                <TableCell>{grade.id}</TableCell>
-                <TableCell>{grade.score}</TableCell>
-                <TableCell>
-                  {grade.student.firstName} {grade.student.lastName}
+            {sortedGrades.map((grade, index) => (
+              <TableRow key={grade.id} 
+              sx={sortedGrades[index -1]?.student.id !== grade.student.id
+                ? {...tableStyles.bodyRow(index), '& td':{ borderTop: '2.5px solid #bdbdbd'}
+              }
+                : tableStyles.bodyRow(index)
+              }>
+                <TableCell sx={tableStyles.bodyCell}>
+                  {sortedGrades[index -1]?.student.id !== grade.student.id
+                  ? `${grade.student.lastName} ${grade.student.firstName}`
+                  : ''}
                 </TableCell>
-                <TableCell>{grade.course.title}</TableCell>
-                <TableCell align="right">
+                <TableCell sx={tableStyles.bodyCell}>{grade.course.title}</TableCell>
+                <TableCell sx={tableStyles.bodyCell}>{grade.score != null && grade.score !==undefined ? (
+                  <Chip 
+                  label={`${grade.score.toFixed(2)} /20`}
+                  color={grade.score >=10 ? "success" : "error"}
+                  size="small"
+                  />
+                ) : (
+                  <Chip label="No grades" color="default" size="small" />
+                )}
+                </TableCell>
+                <TableCell sx={tableStyles.bodyCell}align="right">
                   <IconButton
                     color="primary"
                     size="small"
@@ -156,6 +179,7 @@ function GradeList() {
               setOpenModal(false); // Ferme le modal
               loadGrades(); // Recharge la liste
             }}
+            onClose={() => setOpenModal(false)}
           />
         </DialogContent>
       </Dialog>

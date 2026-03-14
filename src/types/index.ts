@@ -2,7 +2,9 @@ export interface Student {
     id?: number;
     firstName: string;
     lastName: string;
-}
+    average?: number | null;
+    student?: Student;
+  }
 
 export interface Course {
     id?: number;

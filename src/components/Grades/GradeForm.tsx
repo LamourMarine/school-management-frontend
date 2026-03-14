@@ -10,9 +10,10 @@ import { useNotification } from "../../context/NotificationContext";
 interface GradeFormProps {
     onSuccess: () => void;
     gradeToEdit?: Grade;
+    onClose: () => void;
 }
 
-function GradeForm({ onSuccess, gradeToEdit }: GradeFormProps) {
+function GradeForm({ onSuccess, gradeToEdit, onClose }: GradeFormProps) {
     const [score, setScore] = useState<number>(0);
     const [studentId, setStudentId] = useState<number>(0);
     const [courseId, setCourseId] = useState<number>(0);
@@ -74,6 +75,11 @@ function GradeForm({ onSuccess, gradeToEdit }: GradeFormProps) {
 
     return (
         <Box sx={{ p: 3 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2}}>
+                <Button variant="outlined" onClick={onClose}>
+                    Close
+                </Button>
+            </Box>
             <TextField
                 label="Score"
                 type="number"

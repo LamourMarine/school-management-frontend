@@ -1,6 +1,6 @@
 import type { Student } from "../../types/index";
 import StudentReport from "./StudentReport";
-import { Dialog, DialogTitle, DialogContent, } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, Chip } from '@mui/material';
 import StudentForm from './StudentForm';
 import React, { useState, useEffect } from 'react';
 import {
@@ -16,10 +16,12 @@ import {
   Typography,
   IconButton,
 } from '@mui/material';
+import { tableStyles } from '../../styles/tableStyles';
 import { Delete, Edit, Assessment } from '@mui/icons-material';
 import studentService from '../../services/studentService';
 import { useNotification } from "../../context/NotificationContext";
 import ConfirmDialog from '../Common/ConfirmDialog';
+import { table } from "node:console";
 
 
 
@@ -51,6 +53,10 @@ function StudentList() {
       setLoading(false);
     }
   };
+
+  const sortedStudent = [...students].sort((a, b) => 
+   a.lastName.localeCompare(b.lastName)
+  );
 
 
   const handleEdit = (student: Student) => {
@@ -131,22 +137,35 @@ function StudentList() {
         </Button>
       </Box>
 
-      <TableContainer component={Paper}>
+      <TableContainer component={Paper} sx={
+        tableStyles.container
+      }>
         <Table>
           <TableHead>
-            <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell>Last Name</TableCell>
-              <TableCell>First Name</TableCell>
-              <TableCell align="right">Actions</TableCell>
+            <TableRow sx={{ backgroundColor: '#f5f5f5', borderBottom: '2.5px solid #bdbdbd'}}>
+              <TableCell sx={tableStyles.headerCell}>Last Name</TableCell>
+              <TableCell sx={tableStyles.headerCell}>First Name</TableCell>
+              <TableCell sx={tableStyles.headerCell}>Average</TableCell>
+              <TableCell sx={tableStyles.headerCell} align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {students.map((student) => (
-              <TableRow key={student.id}>
-                <TableCell>{student.id}</TableCell>
-                <TableCell>{student.lastName}</TableCell>
-                <TableCell>{student.firstName}</TableCell>
+            {sortedStudent.map((student, index) => (
+              <TableRow key={student.id}
+              sx={tableStyles.bodyRow(index)}
+              >
+                <TableCell sx={tableStyles.bodyCell}>{student.lastName}</TableCell>
+                <TableCell sx={tableStyles.bodyCell}>{student.firstName}</TableCell>
+                <TableCell sx={tableStyles.bodyCell}>{student.average != null && student.average !==undefined ? (
+                  <Chip
+                  label={`${student.average.toFixed(2)} /20`}
+                  color={student.average >= 10 ? "success" : "error"}
+                  size="small"
+                  />
+                ) : (
+                  <Chip label= "No grades" color="default" size="small" />
+                )}
+                </TableCell>
                 <TableCell align="right">
                   <IconButton
                     color="primary"
@@ -191,6 +210,7 @@ function StudentList() {
               setOpenModal(false);  // Ferme le modal
               loadStudents();       // Recharge la liste
             }}
+            onClose={() => setOpenModal(false)}
           />
         </DialogContent>
       </Dialog>

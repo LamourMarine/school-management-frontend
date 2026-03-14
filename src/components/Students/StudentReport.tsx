@@ -2,6 +2,7 @@ import studentService from "../../services/studentService";
 import type { Student, Grade } from "../../types";
 import { useEffect, useState } from "react";
 import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, Button } from '@mui/material';
+import { tableStyles } from "../../styles/tableStyles";
 
 
 
@@ -88,23 +89,24 @@ function StudentReport({ studentId, onClose }: StudentReportProps) {
         Grades
       </Typography>
 
-      <TableContainer component={Paper}>
+      <TableContainer component={Paper} sx={tableStyles.container}>
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Course</TableCell>
-              <TableCell>Code</TableCell>
-              <TableCell>Teacher</TableCell>
-              <TableCell align="right">Score</TableCell>
+              <TableCell sx={tableStyles.headerCell}>Course</TableCell>
+              <TableCell sx={tableStyles.headerCell}>Code</TableCell>
+              <TableCell sx={tableStyles.headerCell}>Teacher</TableCell>
+              <TableCell sx={tableStyles.headerCell} align="right">Score</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {grades.map((grade) => (
-              <TableRow key={grade.id}>
-                <TableCell>{grade.course.title}</TableCell>
-                <TableCell>{grade.course.code}</TableCell>
-                <TableCell>{grade.course.teacher || '-'}</TableCell>
-                <TableCell align="right">
+            {grades.map((grade, index) => (
+              <TableRow key={grade.id}
+              sx={tableStyles.bodyRow(index)}>
+                <TableCell sx={tableStyles.bodyCell}>{grade.course.title}</TableCell>
+                <TableCell sx={tableStyles.bodyCell}>{grade.course.code}</TableCell>
+                <TableCell sx={tableStyles.bodyCell}>{grade.course.teacher || '-'}</TableCell>
+                <TableCell sx={tableStyles.bodyCell} align="right">
                   <Chip
                     label={`${grade.score} / 20`}
                     color={grade.score >= 10 ? "success" : "error"}
