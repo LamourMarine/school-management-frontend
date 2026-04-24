@@ -16,6 +16,8 @@ import {
 import { useNavigate, useLocation } from 'react-router-dom';
 import { School, Logout, Menu as MenuIcon } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
+import NavItem from '../../components/NavItem/NavItem';
+
 
 function Navbar() {
   const navigate = useNavigate();
@@ -35,11 +37,19 @@ function Navbar() {
     setMobileOpen(!mobileOpen);
   };
 
-  const menuItems = [
+  const baseMenuItems = [
     { label: 'Students', path: '/students' },
     { label: 'Courses', path: '/courses' },
     { label: 'Grades', path: '/grades' },
   ];
+
+  const adminMenuItems = [
+    { label: 'Dashboard', path: '/dashboard'},
+  ];
+
+  const menuItems = user?.role === 'ADMIN'
+    ? [...baseMenuItems, ...adminMenuItems]
+    : baseMenuItems;
 
   const handleNavigate = (path: string) => {
     navigate(path);
@@ -87,7 +97,6 @@ function Navbar() {
     <>
       <AppBar position="static">
         <Toolbar>
-          {/* Menu burger (visible sur mobile uniquement) */}
           <IconButton
             color="inherit"
             edge="start"
@@ -106,23 +115,16 @@ function Navbar() {
             School Management
           </Typography>
 
-          {/* Menu desktop (caché sur mobile) */}
+          {/* Menu desktop — on utilise NavItem maintenant */}
           <Box sx={{ display: { xs: 'none', sm: 'flex' }, alignItems: 'center', gap: 2 }}>
             {menuItems.map((item) => (
-              <Button 
+              <NavItem
                 key={item.path}
-                color="inherit"
-                onClick={() => navigate(item.path)}
-                sx={{ 
-                  fontWeight: isActive(item.path) ? 'bold' : 'normal',
-                  textDecoration: isActive(item.path) ? 'underline' : 'none'
-                }}
-              >
-                {item.label}
-              </Button>
+                label={item.label}
+                path={item.path}
+              />
             ))}
 
-            {/* Nom d'utilisateur */}
             <Typography 
               variant="body1" 
               sx={{ 
@@ -135,7 +137,6 @@ function Navbar() {
               {user?.username}
             </Typography>
 
-            {/* Bouton Logout */}
             <Button 
               color="inherit"
               onClick={handleLogout}
@@ -148,7 +149,6 @@ function Navbar() {
         </Toolbar>
       </AppBar>
 
-      {/* Drawer mobile */}
       <Drawer
         variant="temporary"
         open={mobileOpen}

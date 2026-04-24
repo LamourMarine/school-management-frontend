@@ -4,7 +4,7 @@ import authService from '../services/authService';
 import { useNotification } from './NotificationContext';
 import { error } from 'node:console';
 
-interface AuthContextType {
+export interface AuthContextType {
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;
@@ -14,7 +14,7 @@ interface AuthContextType {
   logout: () => void;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -112,6 +112,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const logout = async () => {
     setUser(null);
     setToken(null);
+    authService.clearAuthData();
     await authService.logout();
     showNotification('Logged out successfully', 'info');
   };
