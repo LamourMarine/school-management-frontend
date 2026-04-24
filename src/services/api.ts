@@ -28,8 +28,11 @@ api.interceptors.request.use(
   (config) => {
     const accessToken = localStorage.getItem('accessToken');
     console.log('Token dans intercepteur:', accessToken);
+
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
+      console.log('Token dans intercepteur:', accessToken);
+      console.log('Méthode:', config.method, config.url);
     }
     return config;
   },

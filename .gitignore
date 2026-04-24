@@ -24,3 +24,6 @@ yarn-error.log*
 
 # React environment files
 .env
+
+*storybook.log
+storybook-static
